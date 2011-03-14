@@ -1,0 +1,123 @@
+dcReferenceModelPlugin
+======================
+
+Plugin that makes it easy to implement a set of reference classes which are used
+as constant and options holders for classes that are accessory to the actual
+data model.
+
+
+Installation
+------------
+
+Install and enable the plugin in your symfony project.
+
+    [bash]
+    # Install the plugin via plugin:install - it automatically enables it.
+    $ php symfony plugin:install dcReferenceModelPlugin
+
+
+Configuration
+-------------
+
+Place your reference model definition files in the project's `config` directory.
+The **only** requirement in their names is that they end with `reference.yml`.
+
+For example, you can separate your definition into two different files:
+
+  * `config/reference.yml`
+  * `config/my-other-reference.yml`
+
+and both of them will be processed.
+
+The reference model definition files have the following structure:
+
+    [yaml]
+    reference:
+      package: lib.reference
+      classes:
+        UserState:
+          1: Active
+          2: Suspicious - Might be a spammer
+          3: Banned
+        CommentState:
+          1: Reviewed - Ok
+          2: Reviewed - Not Ok
+          3: Pending
+          4: Won't review
+        PostState:
+          1: Published
+          2: Archived - Old stuff
+          3: Not published
+          4: Archived
+
+In this example -let's say we're developing yet another blog system- three
+reference classes are defined: `UserState`, `CommentState` and `PostState`.
+As their names suggest, they will be used for identifying `User`, `Comment` and
+`Post` states respectively.
+
+Upon generation, all classes will be automatically placed in the project's
+`lib/reference` directory, as defined in the `package` parameter. This is the
+default value for that parameter, so if it is ommitted it will default to
+`lib.reference`.
+
+
+Classes generation
+------------------
+
+The plugin contains a symfony task that creates all the classes defined in your
+reference model definition(s) for you. To use it, you only have to invoke it:
+
+    [bash]
+    $ php symfony reference:build
+
+And automatically all generated classes will be created an placed inside the
+target directory defined by the `package` parameter in the reference model
+definition(s).
+
+
+Generated classes logic
+-----------------------
+
+All the classes generated with the `reference:build` task implement the
+`dcReferenceClassInterface` interface, which has the following API that gives
+access to the options defined in the reference model definitions:
+
+    [php]
+    interface dcReferenceClassInterface
+    {
+      public static function getOptions();
+
+      public static function getIdentifiers();
+
+      public static function toString($identifier);
+
+    }
+
+For further info on the interface and/or its API, you may look at its source
+code which is fully documented.
+
+
+Additional goodies
+------------------
+
+As an added value, the plugin includes a choice widget and a choice validator
+that automatically handles the choices retrieval for you.
+
+Let's say you want to override the `state_id` widget in a `PostForm`:
+
+    [php]
+    // In the PostForm class
+    public function configure()
+    {
+      // ...
+      $this->setWidget('state_id', new dcWidgetFormReferenceModelChoice(array(
+        'model'     => 'PostState',
+        'add_empty' => true
+      ));
+
+      $this->setValidator('state_id', new dcValidatorReferenceModelChoice(array(
+        'model' => 'PostState'
+      ));
+    }
+
+For further info on these goodies, you may look through their source code.

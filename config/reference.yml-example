@@ -1,0 +1,18 @@
+reference:
+  package: lib.reference
+
+  classes:
+    UserState:
+      1: Active
+      2: Suspicious - Might be a spammer
+      3: Banned
+    CommentState:
+      1: Reviewed - Ok
+      2: Reviewed - Not Ok
+      3: Pending
+      4: Won't review
+    PostState:
+      1: Published
+      2: Archived - Old stuff
+      3: Not published
+      4: Archived
