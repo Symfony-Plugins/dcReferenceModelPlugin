@@ -56,6 +56,8 @@ class dcReferenceModelGenerator
    */
   public function generate($target_dir)
   {
+    $base_dir = $target_dir.'/base';
+
     if (null === $this->definition || $this->definition->count() == 0)
     {
       throw new BadMethodCallException('Trying to generate an empty reference model. Aborting.');
@@ -74,6 +76,23 @@ class dcReferenceModelGenerator
         if ($created === false)
         {
           throw new InvalidArgumentException('Unable to create target directory: '.$target_dir);
+        }
+      }
+    }
+
+    if (!is_writable($base_dir))
+    {
+      if (is_dir($base_dir))
+      {
+        throw new InvalidArgumentException('Target directory for base classes is not writeable: '.$base_dir);
+      }
+      else
+      {
+        $created = mkdir($base_dir);
+
+        if ($created === false)
+        {
+          throw new InvalidArgumentException('Unable to create target directory for base classes: '.$base_dir);
         }
       }
     }
@@ -108,6 +127,11 @@ class dcReferenceModelGenerator
 
     foreach ($this->definition->toFiles() as $filename => $code)
     {
+      if (0 == preg_match('#^base/#', $filename) && file_exists($target_dir.'/'.$filename))
+      {
+        continue;
+      }
+
       $bytes  = file_put_contents($target_dir.'/'.$filename, $code);
       $result = $result && false !== $bytes;
     }

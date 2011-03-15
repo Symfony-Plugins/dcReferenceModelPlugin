@@ -43,7 +43,7 @@ class dcWidgetFormReferenceModelChoice extends sfWidgetFormChoice
    */
   public function getChoices()
   {
-    $choices = call_user_func(array($this->getOption('model'), 'getChoices'));
+    $choices = call_user_func(array($this->getOption('model'), 'getOptions'));
 
     if (false !== $this->getOption('add_empty'))
     {
@@ -53,13 +53,13 @@ class dcWidgetFormReferenceModelChoice extends sfWidgetFormChoice
       }
       else
       {
-        $extra_option = $this->translate($this->getOption('add_empty'));
+        $extra_option = $this->getOption('add_empty');
       }
 
       $choices = array('' => $extra_option) + $choices;
     }
 
-    return $choices;
+    return $this->translateAll($choices);
   }
 
 }

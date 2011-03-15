@@ -89,6 +89,7 @@ class dcReferenceModelDefinition implements dcReferenceDefinitionInterface
 
     foreach ($this->getClasses() as $class_definition)
     {
+      $files[$class_definition->getBaseFilename()] = "<?php\n\n".$class_definition->toBasePHP();
       $files[$class_definition->getFilename()] = "<?php\n\n".$class_definition->toPHP();
     }
 

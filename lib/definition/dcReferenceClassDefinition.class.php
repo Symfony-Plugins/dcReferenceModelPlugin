@@ -21,7 +21,23 @@ class dcReferenceClassDefinition implements dcReferenceDefinitionInterface
   }
 
   /**
-   * Generate the PHP code associated to this class.
+   * Generate the PHP code associated to this base class.
+   *
+   * @return string
+   */
+  public function toBasePHP()
+  {
+    return strtr($this->getBaseTemplate(), array(
+      '%class%'       => $this->getName(),
+      '%date%'        => date('Y-m-d H:i:s'),
+      '%constants%'   => implode(",\n    ", $this->getConstants()),
+      '%identifiers%' => implode(",\n      ", $this->getIdentifiers()),
+      '%options%'     => implode(",\n      ", $this->getOptionsForPHP())
+    ));
+  }
+
+  /**
+   * Generate the PHP code associated to this class that extends its base class.
    *
    * @return string
    */
@@ -30,9 +46,6 @@ class dcReferenceClassDefinition implements dcReferenceDefinitionInterface
     return strtr($this->getTemplate(), array(
       '%class%'       => $this->getName(),
       '%date%'        => date('Y-m-d H:i:s'),
-      '%constants%'   => implode(",\n    ", $this->getConstants()),
-      '%identifiers%' => implode(",\n      ", $this->getIdentifiers()),
-      '%options%'     => implode(",\n      ", $this->getOptionsForPHP())
     ));
   }
 
@@ -92,7 +105,7 @@ class dcReferenceClassDefinition implements dcReferenceDefinitionInterface
 
   /**
    * Get the filename of the defined class. Please note that this method
-   * will *only* return the basename of the file, and not its absolute path.
+   * will *only* return the name of the file, and not its absolute path.
    *
    * Filename is a concatenation of the name and a suffix '.class.php'.
    *
@@ -101,6 +114,19 @@ class dcReferenceClassDefinition implements dcReferenceDefinitionInterface
   public function getFilename()
   {
     return $this->getName().'.class.php';
+  }
+
+  /**
+   * Get the base filename of the defined class. Please note that this method
+   * will *only* return the basename of the file, and not its absolute path.
+   *
+   * Filename is a concatenation of 'base/' name and a suffix '.class.php'.
+   *
+   * @return string
+   */
+  public function getBaseFilename()
+  {
+    return 'base/Base'.$this->getName().'.class.php';
   }
 
   /**
@@ -113,6 +139,23 @@ class dcReferenceClassDefinition implements dcReferenceDefinitionInterface
     try
     {
       return file_get_contents(dirname(__FILE__).'/templates/class.tpl');
+    }
+    catch (Exception $error)
+    {
+      throw $error;
+    }
+  }
+
+  /**
+   * Get the PHP code template for the base class to be generated.
+   *
+   * @return string
+   */
+  protected function getBaseTemplate()
+  {
+    try
+    {
+      return file_get_contents(dirname(__FILE__).'/templates/base_class.tpl');
     }
     catch (Exception $error)
     {
